@@ -1,35 +1,3 @@
------------Oтделы, где средняя зарплата выше общей средней зарплаты по компании.
-SELECT dept_name 
-FROM departments d
-JOIN dept_emp de ON d.dept_no = de.dept_no
-JOIN salaries s ON  de.emp_no = s.emp_no
-GROUP BY dept_name
-HAVING AVG(salary) > (SELECT AVG(salary) FROM salaries);
-
-
------------Определение наивысшей текущей зарплаты в каждом отделе 
-SELECT de.emp_no, s.salary, de.dept_no, 
-	MAX(s.salary) OVER (PARTITION BY de.dept_no) AS max_salary_dept
-FROM dept_emp de JOIN salaries s ON de.emp_no = s.emp_no
-WHERE de.to_date = '9999-01-01'
-ORDER BY de.dept_no, s.salary DESC;
-
-
------------Ранжирование сотрудников в отделе по стажу работы:
-SELECT e.emp_no, de.dept_no, e.hire_date, 
-	DENSE_RANK() OVER (PARTITION BY de.dept_no ORDER BY e.hire_date ASC) AS experience_rank
-FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no
-WHERE de.to_date = '9999-01-01' 
-ORDER BY de.dept_no, experience_rank;
-
-
------------Определение начальной и последней зарплаты сотрудника:
-SELECT e.emp_no, s.salary, 
-	FIRST_VALUE(s.salary) OVER (PARTITION BY e.emp_no ORDER BY e.emp_no) AS first_salary,
-	LAST_VALUE(s.salary) OVER (PARTITION BY e.emp_no ORDER BY e.emp_no) AS last_salary
-FROM employees e JOIN salaries s ON e.emp_no = s.emp_no;
-
-
 -----------Количество пользователей добавивших книгу 'Coraline' и сколько пользователей прослушало больше 10%. 
 SELECT COUNT(DISTINCT ac.user_id) AS count_user,
 	(SELECT COUNT(DISTINCT ac1.user_id) AS count_user 
@@ -70,6 +38,36 @@ GROUP BY a.title
 ORDER BY count_finished DESC
 LIMIT 1;
 
+-----------Oтделы, где средняя зарплата выше общей средней зарплаты по компании.
+SELECT dept_name 
+FROM departments d
+JOIN dept_emp de ON d.dept_no = de.dept_no
+JOIN salaries s ON  de.emp_no = s.emp_no
+GROUP BY dept_name
+HAVING AVG(salary) > (SELECT AVG(salary) FROM salaries);
+
+
+-----------Определение наивысшей текущей зарплаты в каждом отделе 
+SELECT de.emp_no, s.salary, de.dept_no, 
+	MAX(s.salary) OVER (PARTITION BY de.dept_no) AS max_salary_dept
+FROM dept_emp de JOIN salaries s ON de.emp_no = s.emp_no
+WHERE de.to_date = '9999-01-01'
+ORDER BY de.dept_no, s.salary DESC;
+
+
+-----------Ранжирование сотрудников в отделе по стажу работы:
+SELECT e.emp_no, de.dept_no, e.hire_date, 
+	DENSE_RANK() OVER (PARTITION BY de.dept_no ORDER BY e.hire_date ASC) AS experience_rank
+FROM employees e JOIN dept_emp de ON e.emp_no = de.emp_no
+WHERE de.to_date = '9999-01-01' 
+ORDER BY de.dept_no, experience_rank;
+
+
+-----------Определение начальной и последней зарплаты сотрудника:
+SELECT e.emp_no, s.salary, 
+	FIRST_VALUE(s.salary) OVER (PARTITION BY e.emp_no ORDER BY e.emp_no) AS first_salary,
+	LAST_VALUE(s.salary) OVER (PARTITION BY e.emp_no ORDER BY e.emp_no) AS last_salary
+FROM employees e JOIN salaries s ON e.emp_no = s.emp_no;
 
 
 
